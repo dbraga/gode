@@ -1,0 +1,21 @@
+{
+    "name": "gode",
+    "preferGlobal": true,
+    "version": "0.1.0",
+    "author": "Derek Reynolds <derekr@me.com>",
+    "description": "Realtime git tree visualizer",
+    "contributors": [
+        {
+            "name": "Damiano Braga",
+            "email": "damiano.braga@gmail.com"
+        }
+    ],
+    "reposiory": {
+        "type": "git",
+        "url": "git@github.com:dbraga/gode.git"
+    },
+    "dependencies": {
+        "node-git": ">=0.0.1"
+    },
+    "license": "MIT"
+}
