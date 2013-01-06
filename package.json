@@ -15,7 +15,9 @@
         "url": "git@github.com:dbraga/gode.git"
     },
     "dependencies": {
-        "node-git": ">=0.0.1"
+        "node-git": ">=0.0.1",
+        "express": ">=3.0.6",
+        "socket.io": ">=0.9.13"
     },
     "license": "MIT"
 }
