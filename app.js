@@ -1,11 +1,9 @@
 var express = require('express');
-// var app = express();
-
 var watch = require('node-watch');
 var exec_path = require('path').dirname(require.main.filename);
 var events = require('events');
-
 var exec = require('child_process').exec;
+
 var gitLog = {
     log: "",
     ncommits : 0,
@@ -14,18 +12,18 @@ var gitLog = {
       this.log = log.split("\n");
       this.ncommits = (this.log.length / 6);
       this.commits = [];
-      for (var i=0; i< this.log.length; i+=(this.ncommits-1)){
-          var commit ={
-              // Commit hash line -> commit: {hash_commit}
-              hash : this.log[i+0].split(" ")[1],
-              // Author line -> Author: {name} <{email}>
-              authorInfo : {  name: this.log[i+1].split(" ")[1], email: this.log[i+1].split(" ")[2] },
-              // Date line -> Date: {date}
-              date : this.log[i+2].split("Date:   ")[1],
-              // Comment line -> {comment}
-              comment : this.log[i+4].split("    ")[1]
-          }
-          this.commits.push( commit )
+      for (var i=0; i<this.ncommits; i++){
+        var commit = {
+          // Commit hash line -> commit {hash_commit}
+          hash : this.log[i*6+0].split("commit ")[1],
+          // Author line -> Author: {name} <{email}>  
+          authorInfo : {  name: this.log[i*6+1].split(" ")[1], email: this.log[i*6+1].split(" ")[2] },
+          // Date line -> Date: {date}
+          date : this.log[i*6+2].split("Date:   ")[1],
+          // Comment line -> {comment}
+          comment : this.log[i*6+4].split("    ")[1]          
+        }
+        this.commits.push( commit );
       }
       return this.commits;
     },
@@ -51,16 +49,24 @@ app.get('/', function (req, res) {
 });
 
 io.sockets.on('connection', function (socket) {
+
+  exec('git log', function (error, gitLogOutput) {
+  // Send the full git log
+    socket.emit("full-git-log",gitLog.parse(gitLogOutput));
+  });
+
+
+
   gitlog.on('commit', function (commit) {
     socket.emit('test', commit);
   });
 });
 
 
-  watch(exec_path +'/.git/refs/heads', function(filename) {
-    exec('git log', function (error, gitLogOutput) {
-        var log = gitLog.parse(gitLogOutput);
-        gitlog.emit('commit', log[0]);
-    });
+watch(exec_path +'/.git/refs/heads', function(filename) {
+  exec('git log', function (error, gitLogOutput) {
+      var log = gitLog.parse(gitLogOutput);
+      gitlog.emit('commit', log[0]);
   });
+});
 
