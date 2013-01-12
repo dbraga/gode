@@ -1,5 +1,8 @@
 var express = require('express');
 var app = express();
+var watch = require('node-watch');
+var exec_path = require('path').dirname(require.main.filename);
+
 
 var exec = require('child_process').exec;
 var gitLog = {
@@ -30,16 +33,22 @@ var gitLog = {
     }
 }; 
 
-exec('git log', function (error, gitLogOutput) {
-    var log = gitLog.parse(gitLogOutput);
-    // Debug mode. printing out the first commit comment
-    console.log(log[0]["comment"]);
-});
+console.log(exec_path);
 
+watch(exec_path +'/.git/refs/heads', function(filename) {
+        console.log(filename, ' changed.');
+      });   
 
 
 app.get('/', function(req, res){
-  res.send('Hello World');
+  exec('git log', function (error, gitLogOutput) {
+      var log = gitLog.parse(gitLogOutput);
+
+
+      // Debug mode. printing out the first commit comment
+      res.send(log[0]["comment"]);
+  });
+
 });
 
 app.listen(3000);
