@@ -1,8 +1,8 @@
 var express = require('express');
-var app = express();
+// var app = express();
+
 var watch = require('node-watch');
 var exec_path = require('path').dirname(require.main.filename);
-
 
 var exec = require('child_process').exec;
 var gitLog = {
@@ -33,23 +33,27 @@ var gitLog = {
     }
 }; 
 
-console.log(exec_path);
+var app = express()
+  , http = require('http')
+  , server = http.createServer(app)
+  , io = require('socket.io').listen(server);
 
-watch(exec_path +'/.git/refs/heads', function(filename) {
-        console.log(filename, ' changed.');
-      });   
+server.listen(3000);
 
-
-app.get('/', function(req, res){
-  exec('git log', function (error, gitLogOutput) {
-      var log = gitLog.parse(gitLogOutput);
-
-
-      // Debug mode. printing out the first commit comment
-      res.send(log[0]["comment"]);
-  });
-
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
 });
 
-app.listen(3000);
-console.log('Listening on port 3000');
+io.sockets.on('connection', function (socket) {
+  watch(exec_path +'/.git/refs/heads', function(filename) {
+    exec('git log', function (error, gitLogOutput) {
+        var log = gitLog.parse(gitLogOutput);
+        socket.emit('test', log[0]);
+    });
+  });   
+});
+
+
+
+
+
