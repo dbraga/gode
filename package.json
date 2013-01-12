@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "node-git": ">=0.0.1",
+        "node-watch": ">=0.0.1",
         "express": ">=3.0.6",
         "socket.io": ">=0.9.13"
     },
