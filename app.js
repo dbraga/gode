@@ -44,16 +44,17 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
+var sockets ;
+
 io.sockets.on('connection', function (socket) {
-  watch(exec_path +'/.git/refs/heads', function(filename) {
-    exec('git log', function (error, gitLogOutput) {
-        var log = gitLog.parse(gitLogOutput);
-        socket.emit('test', log[0]);
-    });
-  });   
+  sockets = socket;
 });
 
 
-
-
+  watch(exec_path +'/.git/refs/heads', function(filename) {
+    exec('git log', function (error, gitLogOutput) {
+        var log = gitLog.parse(gitLogOutput);
+        sockets.emit('test', log[0]);
+    });
+  });   
 
