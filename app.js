@@ -21,7 +21,8 @@ var gitLog = {
           // Date line -> Date: {date}
           date : this.log[i*6+2].split("Date:   ")[1],
           // Comment line -> {comment}
-          comment : this.log[i*6+4].split("    ")[1]          
+          comment : this.log[i*6+4].split("    ")[1],
+          index : i     
         }
         this.commits.push( commit );
       }
@@ -72,7 +73,9 @@ io.sockets.on('connection', function (socket) {
 watch(exec_path +'/.git/refs/heads', function(filename) {
   exec('git log', function (error, gitLogOutput) {
       var log = gitLog.parse(gitLogOutput);
-      gitlog.emit('commit', log[0]);
+      // gitlog.emit('commit', log[0]);
+      gitlog.emit('commit', log);
+
   });
 });
 

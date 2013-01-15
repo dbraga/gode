@@ -2,193 +2,77 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Force based label placement</title>
+    <title>Gode</title>
   </head>
   <body>
 
 
-    <script type="text/javascript" src="media/jquery-1.8.3.min.js"></script>
-    <script src="media/d3.min.js"></script>
-      <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="media/jquery-1.8.3.min.js"></script>
+  <script src="media/d3.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 
 
   <script>
-    // var socket = io.connect();
     var socket = io.connect('http://localhost:3000');
 
-    socket.on('test', function (data) {
-      // console.log(data);
-      $("#test").text(data["hash"] + "-" + data["date"] + "-" + data["comment"]+ "-"+ data["authorInfo"]["name"] + " - " +data["authorInfo"]["email"]);
+    socket.on('full-git-log', function (full_git_log) {
+      var dataset = full_git_log;
+      node_radius = 30;
+
+      d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000);
+      d3.select("body svg").selectAll("circle")
+          .data(dataset)
+          .enter()
+          .append("circle").attr("r", node_radius).attr("cy", function(d){ return d.index * 100 + 150;}).attr("cx", 300).style("fill", "steelblue")
+    });
 
 
-      var circle = d3.select("body").selectAll("circle");
-
-      circle.sort();
-
-      //move down circles
-      var first_node_current_cy = d3.select("body").select("circle")[0][0].cy.baseVal.value;
-      var first_node_current_cx = d3.select("body").select("circle")[0][0].cx.baseVal.value;
-
-      console.dir(circle[0].length);
-      circle.transition().attr("cy", function(d, i) {
-          return first_node_current_cy + i * 100  + 100;        
-      });
+    socket.on('test', function (dataset) {
+      var svg = d3.select("body svg") ;
 
 
-
-      // var first_line_current_y1 = d3.select("body").select("line")[0][0].y1.baseVal.value;
-      // var first_line_current_y2 = d3.select("body").select("line")[0][0].y2.baseVal.value;
-
-
-      // var line = d3.select("body").selectAll("line");
-      // line.transition().attr("y1", function(d, i) {
-      //   return first_line_current_y1 + i * 100  + 100;
-      // })
-      // .attr("y2", function(d, i) {
-      //   return first_line_current_y2 + i * 100 + 100;
-      // })
+          //move down circles
+          var first_node_current_cy = d3.select("body svg").select("circle")[0][0].cy.baseVal.value;
+          var first_node_current_cx = d3.select("body svg").select("circle")[0][0].cx.baseVal.value;
+          var circle = svg.selectAll("circle");
+          circle.transition()
+            .duration(500) // this is 1s
+            .delay(100)     // this is 0.1s   
+          .attr("cy", function(d, i) {
+              return first_node_current_cy + i * 100  + 200;        
+          });
 
 
+      var circle = svg.selectAll("circle")
+        .data(dataset);
 
 
+      circle.enter().append("circle")
+          .attr("r", 30);
 
+      circle
+          .attr("cx", function(d) { return 300; })
+          .attr("cy", function(d) { return d.index * 100 + 150;; });
 
+      circle.transition().duration(1000) // this is 1s
+        .delay(2000)     // this is 0.1s
+        .filter(function(d, i) { if (i==0) return 1; }).style("fill", "green")
+        .each("end",function() { 
+          d3.select("body svg").selectAll("circle")       
+            .transition()
+            .duration(1000) // this is 1s
+            .delay(100)     // this is 0.1s   
+            .style("fill", "steelblue")
+            .attr("cy", function(d, i) {
+              return first_node_current_cy + i * 100 ;        
+          }).filter(function(d, i) { return 1; });
+         });
 
-
-      // new circle
-      // d3.select("body").select("circle").style("fill","green");
-
-    d3.select("body svg").append("circle").transition().attr("r", node_radius)
-     .attr("cy", 130 ).attr("cx", first_node_current_cx)
-     .style("fill", "green").style("stroke", "#FFF").style("stroke-width", 3);//.transition().style("fill","steelblue");
-
-
-
-
-
-    //      var w = 2000, h = 20*100 + 300;
-
-    //  var node_radius = 30;
-    //  var space_btw_node_and_line = 5;
-    //  var center_of_the_screen_y = 300;
-    //  var center_of_the_screen_x = 1000;
-    //  var i = 0;
-    //        cy = center_of_the_screen_y + 100 * i ;
-    //  cx = center_of_the_screen_x ;
-
-     // var vis = d3.select("body").append("svg:svg").attr("width", w).attr("height", h);
-
-    //  vis.append("svg:circle").attr("r", node_radius)
-    //  .attr("cy", cy).attr("cx", cx)
-    //  .style("fill", "#00611C").style("stroke", "#FFF").style("stroke-width", 3);
-
-
-    //  vis.append("svg:line")
-    //    .attr("x1", center_of_the_screen_x).attr("y1", cy + node_radius + space_btw_node_and_line )
-    //    .attr("x2", center_of_the_screen_x).attr("y2", cy + node_radius + 100*(i+1) - space_btw_node_and_line )
-    //    .style("fill", "#555").style("stroke", "#000").style("stroke-width", 3);
-    //  // };
-
-
-
-
-// vis.selectAll("circle").data(circle[0]).enter().append("circle").attr("r", 30)
-//       .attr("cy", 200).attr("cx", 900)
-//       .style("fill", "#00611C").style("stroke", "#FFF").style("stroke-width", 3);
-
-
-
-// //move down lines 
-// var line = vis.selectAll("line");
-// line.transition().attr("y1", function(d, i) {
-//   return 300 + i * 100  + 100 + 30 + 5 ;
-// }).attr("y2", function(d, i) {
-//   return 300 + i * 100  + 100 + 30 - 5 + 100*(i+1) ;
-// })
-
-
-// console.log('addded');
-// console.dir();
-// console.dir(circle.data();
-
- 
-
-// console.log('adddddded');
-      // vis.append("svg:line")
-      //  .attr("x1", center_of_the_screen_x).attr("y1", cy + node_radius + space_btw_node_and_line )
-      //  .attr("x2", center_of_the_screen_x).attr("y2", cy + node_radius + 100 - space_btw_node_and_line )
-      //  .style("fill", "#555").style("stroke", "#000").style("stroke-width", 3);
-
-      
-
-      //  .attr("x1", center_of_the_screen_x).attr("y1", cy + node_radius + space_btw_node_and_line )
-      //  .attr("x2", center_of_the_screen_x).attr("y2", cy + node_radius + 100*(i+1) - space_btw_node_and_line )
-      //  .style("fill", "#555").style("stroke", "#000").style("stroke-width", 3);
-      // };
-
-
+      circle.exit().remove();
 
     });
-// 
 
 
-
-  socket.on('full-git-log', function (full_git_log) {
-      var nodes = [];
-      var labelAnchors = [];
-      var w = 1000, h = 8000;
-      var vis = d3.select("body").append("svg:svg").attr("width", w).attr("height", h);
-
-
-
-      for(var i = 0; i < full_git_log.length; i++) {
-          node_radius = 30;
-          space_btw_node_and_line = 5;
-          center_of_the_screen_y = 130;
-          center_of_the_screen_x = 500;
-          cy = center_of_the_screen_y + 100 * i ;
-          cx = center_of_the_screen_x ;
-
-          var circle = vis.selectAll("circle");
-
-          vis.append("svg:circle").attr("r", node_radius)
-          .attr("cy", cy).attr("cx", cx)
-          .style("fill", "steelblue").style("stroke", "#FFF").style("stroke-width", 3);
-
-          var text = vis.selectAll("text")
-                               .data(circle[0])
-                               .enter()
-                               .append("text");
-
-
-          // Add the text attributes
-          var textLabels = text
-                        .attr("x", function(d) { return cx; })
-                        .attr("y", function(d) { return cy; })
-                        .text( function (d) { return  i ; })//full_git_log[i]["date"]; })
-                        .attr("font-family", "sans-serif")
-                       .attr("font-size", "20px")
-                       .attr("fill", "black");                       
-
-          // vis.append("svg:line")
-          //   .attr("x1", center_of_the_screen_x).attr("y1", cy + node_radius + space_btw_node_and_line )
-          //   .attr("x2", center_of_the_screen_x).attr("y2", cy + node_radius + 100*(i+1) - space_btw_node_and_line )
-          //   .style("fill", "#555").style("stroke", "#000").style("stroke-width", 3);
-
-      };
-
-
-
-
-// console.dir(circle.append("circle"));
-// var link = vis.selectAll("circle").append("svg:line").attr("class", "link").style("stroke", "#CCC");
-// circle.style("fill", "steelblue");
-
-
-
-  });
-
-
-    </script>
+  </script>
   </body>
 </html>
