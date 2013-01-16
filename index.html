@@ -13,7 +13,7 @@
 
 
   <script>
-    var socket = io.connect('http://localhost:3000');
+    var socket = io.connect('http://10.1.25.33:3000');
 
     socket.on('full-git-log', function (full_git_log) {
       var dataset = full_git_log;
@@ -23,7 +23,25 @@
       d3.select("body svg").selectAll("circle")
           .data(dataset)
           .enter()
-          .append("circle").attr("r", node_radius).attr("cy", function(d){ return d.index * 100 + 150;}).attr("cx", 300).style("fill", "steelblue")
+          .append("circle").attr("r", node_radius).attr("cy", function(d){ return d.index * 100 + 150;}).attr("cx", 300).style("fill", "steelblue");
+
+      // d3.select("body svg").selectAll("svg:line")
+      // .data(dataset)
+      // .enter()
+      // .append("line").style("fill","black").attr("x1",400).attr("x2",400).attr("y1", function(d){ return d.index * 100 + 150;}).attr("y2", function(d){ return d.index * 100 + 150 + 30;})     
+
+var svg = d3.select("body svg") ;
+var mySquare=
+
+svg.append("rect")
+      .data(dataset)
+      .enter()
+      
+  .attr("x",60)
+  .attr("y",60)
+  .attr("width", 3)
+  .attr("height",30);
+
     });
 
 
