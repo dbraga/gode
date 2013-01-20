@@ -14,151 +14,89 @@
 
   <script>
     var socket = io.connect('http://localhost:3000');
-
     var svgcanvas = d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000).attr("x","100");
 
     socket.on('full-git-log', function (full_git_log) {
       var dataset = full_git_log;
-      node_radius = 30;
-
-      
+      var node_radius = 30;
       var group = svgcanvas.append("svg:g");
 
-      console.dir(dataset);
-      group.selectAll("circle")
-          .data(dataset)
-          .enter()
-          .append("circle").attr("r", node_radius).attr("cy", function(d){ return (dataset.length-d.index) * 100 + 150;}).attr("cx", 300).style("fill", "steelblue");
+      // Binding & Adding the circles
+      group.selectAll("circle").data(dataset)
+        .enter().append("circle")
+        .attr("r", node_radius)
+        .attr("cy", function(d){ return (dataset.length-d.index) * 100 + 150;})
+        .attr("cx", 300).style("fill", "steelblue");
 
-      // d3.select("body svg").selectAll("svg:line")
-      // .data(dataset)
-      // .enter()
-      // .append("line").style("fill","black").attr("x1",400).attr("x2",400).attr("y1", function(d){ return d.index * 100 + 150;}).attr("y2", function(d){ return d.index * 100 + 150 + 30;})     
-
-// var svg = d3.select("body svg") ;
-// // var mySquare=
-
-// svg.append("rect")
-//       .data(dataset)
-//       .enter()
-      
-//   .attr("x",60)
-//   .attr("y",60)
-//   .attr("width", 3)
-//   .attr("height",30);
-
-    group.selectAll("rect").data(dataset)
-              .enter()
-          .append("rect")
-            .attr("x",300)
-  .attr("y",function(d){ return (dataset.length-d.index) * 100 + 185;})
-  .attr("width", 3)
-  .attr("height",30);
-
-
-
+      // Binding & Adding the rectangles (lines)
+      group.selectAll("rect").data(dataset)
+        .enter().append("rect")
+        .attr("x",300)
+        .attr("y",function(d){ return (dataset.length-d.index) * 100 + 185;})
+        .attr("width", 3)
+        .attr("height",30);
     });
 
     socket.on('test', function (dataset) {
       var svg = d3.select("body svg") ;
-      var xValue = 100;
-      console.dir(svgcanvas.select("g").attr("transform"));
+      var yValue = 100;
+
+      // Set the base line for the t-coordinate of the svg group
       if (svgcanvas.select("g").attr("transform")!=null){
-        xValue = parseInt(svgcanvas.select("g").attr("transform").split(",")[1].split(")")[0]) + 100 ;
-        console.log("here");
+        //todo: find a clean way to get the past transform data, without using the split method
+        yValue = parseInt(svgcanvas.select("g").attr("transform").split(",")[1].split(")")[0]) + 100 ;
       }
 
+      // Did we remove data from the dataset?
       var toRemove = false;
-
       if (svgcanvas.select("g").selectAll("circle")[0].length > dataset.length){
         toRemove = true;
       }
 
-      var circle = svgcanvas.select("g").selectAll("circle")
-        .data(dataset)
+      // Update the dataset for both circles and rectangles
+      var circle = svgcanvas.select("g").selectAll("circle").data(dataset);
+      var rect = svgcanvas.select("g").selectAll("rect").data(dataset);
 
-        console.log();
       if (toRemove){
-        // remove 
-        console.log("remove");
-        circle.exit().remove();
+        // Fade out circle & remove it 
+        circle.exit()
+          .transition()
+          .duration(1000) // this is 1s
+          .delay(500)     // this is 0.1s
+          .style("opacity","0").each("end", function() { circle.exit().remove(); });
 
-svgcanvas.select("g").transition()
-        .duration(1000) // this is 1s
-        .delay(500)     // this is 0.1s
-      .attr("transform", "translate(0,"+xValue-100+")");
+        // Fade out rectangle & remove it  
+        rect.exit()
+          .transition()
+          .duration(1000) // this is 1s
+          .delay(500)     // this is 0.1s
+          .style("opacity","0").each("end", function() { rect.exit().remove(); });
 
-// svgcanvas.select("g").transition()
-//         .duration(1000) // this is 1s
-//         .delay(500)     // this is 0.1s
-//       .attr("transform", "translate(0,"+xValue - 100+")");
+        // Move up teh group
+        svgcanvas.select("g").transition()
+          .duration(1000) // this is 1s
+          .delay(500)     // this is 0.1s
+        .attr("transform", "translate(0,"+yValue-100+")");
 
+      } else {
+        // Add new circle
+        circle.enter().append("circle")
+          .attr("cy", 50)
+          .attr("cx", 300)
+          .attr("r", 30);
+        // Add new rectangle
+        rect.enter()
+          .append("rect")
+          .attr("x",300)
+          .attr("y",function(d){ return (dataset.length-d.index) * 100 + 85;})
+          .attr("width", 3)
+          .attr("height",30);
+        // Move down all the group
+        svgcanvas.select("g").transition()
+          .duration(1000) // this is 1s
+          .delay(500)     // this is 0.1s
+          .attr("transform", "translate(0,"+yValue+")");
       }
-      else{
-        console.log("add");
-
-       var enter = circle.enter().append("circle");
-
-
-
-enter.attr("cy", 50);
-// 
-enter.attr("cx", 300);
-
-enter.attr("r", 30);
-
-
-
-svgcanvas.select("g").transition()
-        .duration(1000) // this is 1s
-        .delay(500)     // this is 0.1s
-      .attr("transform", "translate(0,"+xValue+")");
-      }
-
-
-      //     //move down circles
-      //     var first_node_current_cy = d3.select("body svg").select("circle")[0][0].cy.baseVal.value;
-      //     var first_node_current_cx = d3.select("body svg").select("circle")[0][0].cx.baseVal.value;
-      //     var circle = svg.selectAll("circle");
-      //     circle.transition()
-      //       .duration(500) // this is 1s
-      //       .delay(100)     // this is 0.1s   
-      //     .attr("cy", function(d, i) {
-      //         return first_node_current_cy + i * 100  + 200;        
-      //     });
-
-
-
-       
-
-
-console.dir(circle.enter());
-
-
-
-      // svgcanvas.select("g").append("circle").attr("r",30).attr("cx",150).attr("cy",300);
-      // circle.enter().append("circle")
-      //     .attr("r", 30);
-
-      // circle
-      //     .attr("cx", function(d) { return 300; })
-      //     .attr("cy", function(d) { return d.index * 100 + 150; });
-
-      // circle.transition().duration(1000) // this is 1s
-      //   .delay(2000)     // this is 0.1s
-      //   .filter(function(d, i) { if (i==0) return 1; }).style("fill", "green")
-      //   .each("end",function() { 
-      //     d3.select("body svg").selectAll("circle")       
-      //       .transition()
-      //       .duration(1000) // this is 1s
-      //       .delay(100)     // this is 0.1s   
-      //       .style("fill", "steelblue")
-      //       .attr("cy", function(d, i) {
-      //         return first_node_current_cy + i * 100 ;        
-      //     }).filter(function(d, i) { return 1; });
-      //    });
-
-      // circle.exit().remove();
 
     });
 
