@@ -37,8 +37,9 @@
         .attr("height",30);
     });
 
-    socket.on('test', function (dataset) {
+    socket.on('update-git-log', function (dataset) {
       var svg = d3.select("body svg") ;
+      // Starting point for the canvas group. Every time that a commit is added/removed this canvas will be moved down/up
       var yValue = 0;
 
       // get the last y position of the group after last transform and increase it
@@ -59,9 +60,6 @@
 
 
       if (toRemove){
-
-
-               
         // Fade out circle & remove it 
         circle.exit()
           .transition()
@@ -76,12 +74,11 @@
           .delay(500)     // this is 0.1s
           .style("opacity","0").each("end", function() { rect.exit().remove(); });
 
+        // Move the canvas to the original position calculating the correct offset
         var yTransform = 0;
         if (yValue > 0){
           yTransform = yValue - 200;
         }
-        console.log(yValue);
-        console.log(yTransform);
 
          // Move up the group
         svgcanvas.select("g").transition()
@@ -91,6 +88,7 @@
 
       } else {
 
+        // Move the canvas to the new position calculating the correct offset
         var yTransform = 0;
         if (yValue == 0){
           yTransform = 100;
