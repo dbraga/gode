@@ -10,18 +10,18 @@ var gitLog = {
     commits : [],
     parse: function(log) {
       this.log = log.split("\n");
-      this.ncommits = (this.log.length / 6);
+      this.ncommits = this.log.length;
       this.commits = [];
       for (var i=0; i<this.ncommits; i++){
         var commit = {
-          // Commit hash line -> commit {hash_commit}
-          hash : this.log[i*6+0].split("commit ")[1],
+          // Commit hash line ->  {hash_commit}
+          hash : this.log[i].split("  ")[0],
           // Author line -> Author: {name} <{email}>  
-          authorInfo : {  name: this.log[i*6+1].split(" ")[1], email: this.log[i*6+1].split(" ")[2] },
+          authorInfo : {  name: this.log[i].split("  ")[1], email: this.log[i].split("  ")[2] },
           // Date line -> Date: {date}
-          date : this.log[i*6+2].split("Date:   ")[1],
+          date : this.log[i].split("  ")[3],
           // Comment line -> {comment}
-          comment : this.log[i*6+4].split("    ")[1],
+          comment : this.log[i].split("  ")[4],
           index : this.ncommits - i     
         }
         this.commits.push( commit );
@@ -57,7 +57,7 @@ app.get('/', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
 
-  exec('git log', function (error, gitLogOutput) {
+  exec('git log --pretty=format:"%h  %an  %ae  %ad  %s"', function (error, gitLogOutput) {
   // Send the full git log
     socket.emit("full-git-log",gitLog.parse(gitLogOutput));
   });
