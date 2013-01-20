@@ -22,11 +22,11 @@ var gitLog = {
           date : this.log[i*6+2].split("Date:   ")[1],
           // Comment line -> {comment}
           comment : this.log[i*6+4].split("    ")[1],
-          index : i     
+          index : this.ncommits - i     
         }
         this.commits.push( commit );
       }
-      return this.commits;
+      return this.commits.reverse();
     },
     toString: function() {
       return log;

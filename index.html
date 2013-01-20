@@ -13,80 +13,152 @@
 
 
   <script>
-    var socket = io.connect('http://10.1.25.33:3000');
+    var socket = io.connect('http://localhost:3000');
+
+    var svgcanvas = d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000).attr("x","100");
 
     socket.on('full-git-log', function (full_git_log) {
       var dataset = full_git_log;
       node_radius = 30;
 
-      d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000);
-      d3.select("body svg").selectAll("circle")
+      
+      var group = svgcanvas.append("svg:g");
+
+      console.dir(dataset);
+      group.selectAll("circle")
           .data(dataset)
           .enter()
-          .append("circle").attr("r", node_radius).attr("cy", function(d){ return d.index * 100 + 150;}).attr("cx", 300).style("fill", "steelblue");
+          .append("circle").attr("r", node_radius).attr("cy", function(d){ return (dataset.length-d.index) * 100 + 150;}).attr("cx", 300).style("fill", "steelblue");
 
       // d3.select("body svg").selectAll("svg:line")
       // .data(dataset)
       // .enter()
       // .append("line").style("fill","black").attr("x1",400).attr("x2",400).attr("y1", function(d){ return d.index * 100 + 150;}).attr("y2", function(d){ return d.index * 100 + 150 + 30;})     
 
-var svg = d3.select("body svg") ;
-var mySquare=
+// var svg = d3.select("body svg") ;
+// // var mySquare=
 
-svg.append("rect")
-      .data(dataset)
-      .enter()
+// svg.append("rect")
+//       .data(dataset)
+//       .enter()
       
-  .attr("x",60)
-  .attr("y",60)
+//   .attr("x",60)
+//   .attr("y",60)
+//   .attr("width", 3)
+//   .attr("height",30);
+
+    group.selectAll("rect").data(dataset)
+              .enter()
+          .append("rect")
+            .attr("x",300)
+  .attr("y",function(d){ return d.index * 100 + 185;})
   .attr("width", 3)
   .attr("height",30);
 
-    });
 
+
+    });
 
     socket.on('test', function (dataset) {
       var svg = d3.select("body svg") ;
+      var xValue = 100;
+      console.dir(svgcanvas.select("g").attr("transform"));
+      if (svgcanvas.select("g").attr("transform")!=null){
+        xValue = parseInt(svgcanvas.select("g").attr("transform").split(",")[1].split(")")[0]) + 100 ;
+        console.log("here");
+      }
+
+      var toRemove = false;
+
+      if (svgcanvas.select("g").selectAll("circle")[0].length > dataset.length){
+        toRemove = true;
+      }
+
+      var circle = svgcanvas.select("g").selectAll("circle")
+        .data(dataset)
+
+        console.log();
+      if (toRemove){
+        // remove 
+        console.log("remove");
+        circle.exit().remove();
+
+svgcanvas.select("g").transition()
+        .duration(1000) // this is 1s
+        .delay(500)     // this is 0.1s
+      .attr("transform", "translate(0,"+xValue-100+")");
+
+// svgcanvas.select("g").transition()
+//         .duration(1000) // this is 1s
+//         .delay(500)     // this is 0.1s
+//       .attr("transform", "translate(0,"+xValue - 100+")");
+
+      }
+      else{
+        console.log("add");
+
+       var enter = circle.enter().append("circle");
 
 
-          //move down circles
-          var first_node_current_cy = d3.select("body svg").select("circle")[0][0].cy.baseVal.value;
-          var first_node_current_cx = d3.select("body svg").select("circle")[0][0].cx.baseVal.value;
-          var circle = svg.selectAll("circle");
-          circle.transition()
-            .duration(500) // this is 1s
-            .delay(100)     // this is 0.1s   
-          .attr("cy", function(d, i) {
-              return first_node_current_cy + i * 100  + 200;        
-          });
+
+enter.attr("cy", 50);
+// 
+enter.attr("cx", 300);
+
+enter.attr("r", 30);
 
 
-      var circle = svg.selectAll("circle")
-        .data(dataset);
+
+svgcanvas.select("g").transition()
+        .duration(1000) // this is 1s
+        .delay(500)     // this is 0.1s
+      .attr("transform", "translate(0,"+xValue+")");
+      }
 
 
-      circle.enter().append("circle")
-          .attr("r", 30);
+      //     //move down circles
+      //     var first_node_current_cy = d3.select("body svg").select("circle")[0][0].cy.baseVal.value;
+      //     var first_node_current_cx = d3.select("body svg").select("circle")[0][0].cx.baseVal.value;
+      //     var circle = svg.selectAll("circle");
+      //     circle.transition()
+      //       .duration(500) // this is 1s
+      //       .delay(100)     // this is 0.1s   
+      //     .attr("cy", function(d, i) {
+      //         return first_node_current_cy + i * 100  + 200;        
+      //     });
 
-      circle
-          .attr("cx", function(d) { return 300; })
-          .attr("cy", function(d) { return d.index * 100 + 150; });
 
-      circle.transition().duration(1000) // this is 1s
-        .delay(2000)     // this is 0.1s
-        .filter(function(d, i) { if (i==0) return 1; }).style("fill", "green")
-        .each("end",function() { 
-          d3.select("body svg").selectAll("circle")       
-            .transition()
-            .duration(1000) // this is 1s
-            .delay(100)     // this is 0.1s   
-            .style("fill", "steelblue")
-            .attr("cy", function(d, i) {
-              return first_node_current_cy + i * 100 ;        
-          }).filter(function(d, i) { return 1; });
-         });
 
-      circle.exit().remove();
+       
+
+
+console.dir(circle.enter());
+
+
+
+      // svgcanvas.select("g").append("circle").attr("r",30).attr("cx",150).attr("cy",300);
+      // circle.enter().append("circle")
+      //     .attr("r", 30);
+
+      // circle
+      //     .attr("cx", function(d) { return 300; })
+      //     .attr("cy", function(d) { return d.index * 100 + 150; });
+
+      // circle.transition().duration(1000) // this is 1s
+      //   .delay(2000)     // this is 0.1s
+      //   .filter(function(d, i) { if (i==0) return 1; }).style("fill", "green")
+      //   .each("end",function() { 
+      //     d3.select("body svg").selectAll("circle")       
+      //       .transition()
+      //       .duration(1000) // this is 1s
+      //       .delay(100)     // this is 0.1s   
+      //       .style("fill", "steelblue")
+      //       .attr("cy", function(d, i) {
+      //         return first_node_current_cy + i * 100 ;        
+      //     }).filter(function(d, i) { return 1; });
+      //    });
+
+      // circle.exit().remove();
 
     });
 
