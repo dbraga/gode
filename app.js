@@ -71,7 +71,7 @@ io.sockets.on('connection', function (socket) {
 
 
 watch(exec_path +'/.git/refs/heads', function(filename) {
-  exec('git log', function (error, gitLogOutput) {
+  exec('git log --pretty=format:"%h  %an  %ae  %ad  %s"', function (error, gitLogOutput) {
       var log = gitLog.parse(gitLogOutput);
       // gitlog.emit('commit', log[0]);
       gitlog.emit('commit', log);
