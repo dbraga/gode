@@ -65,7 +65,7 @@ io.sockets.on('connection', function (socket) {
 
 
   gitlog.on('commit', function (commit) {
-    socket.emit('test', commit);
+    socket.emit('update-git-log', commit);
   });
 });
 
