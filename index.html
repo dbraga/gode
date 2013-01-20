@@ -51,7 +51,7 @@
               .enter()
           .append("rect")
             .attr("x",300)
-  .attr("y",function(d){ return d.index * 100 + 185;})
+  .attr("y",function(d){ return (dataset.length-d.index) * 100 + 185;})
   .attr("width", 3)
   .attr("height",30);
 
