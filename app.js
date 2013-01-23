@@ -33,6 +33,17 @@ var gitLog = {
     }
 };
 
+var currentBranch = {
+  get: function(input) {
+    var lines = input.split("\n");
+    for (var i=0; i< lines.length; i++){
+      if (lines[i].indexOf("*") !=-1){
+        return lines[i].split("* ")[1];
+      }
+    }
+  }
+}
+
 var Git = function () {};
 Git.prototype = new events.EventEmitter;
 
@@ -62,6 +73,10 @@ io.sockets.on('connection', function (socket) {
     socket.emit("full-git-log",gitLog.parse(gitLogOutput));
   });
 
+  exec('git branch', function (error, output) {
+  // Send the full git log
+    socket.emit("current-branch",currentBranch.get(output));
+  });
 
 
   gitlog.on('commit', function (commit) {
