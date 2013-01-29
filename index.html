@@ -59,6 +59,7 @@
   <script>
     var socket = io.connect('http://localhost:3000');
     var svgcanvas = d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000).attr("x","100");
+    
     var tooltip = d3.select("body")
       .append("div")
       .style("position", "absolute")
@@ -83,21 +84,20 @@
           .style('opacity', 0.5) 
       });
 
+    // Branch name
+      // Text
     svgcanvas.append("svg:text")
       .attr("x", 400)
       .attr("y", 145)
       .attr("text-anchor","middle")
       .attr("dy",".35em")
       .text( input );
-
+      // Triangle
     svgcanvas.append('path')
           .attr('d', function(d) { 
             var x = 350, y = 130;
             return 'M ' + x +' '+ y + ' l -20 15 l 20 15 z';
           }).style("fill","steelblue").style("opacity",0.5);
-
-
-
     });
 
     socket.on('full-git-log', function (full_git_log) {
@@ -111,9 +111,10 @@
         .attr("r", node_radius)
         .attr("cy", function(d){ return (dataset.length-d.index) * 100 + 150;})
         .attr("cx", 300).style("fill", "steelblue")
-        .on("mouseover", function(d){ return tooltip.text(d.comment).style("visibility", "visible");})
-  .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");});
-  // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+        // Tooltip events
+        .on("click", function(d){ return tooltip.text(d.comment).style("visibility", "visible");})
+        .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")})
+        .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
       // Binding & Adding the rectangles (lines)
       group.selectAll("rect").data(dataset)
