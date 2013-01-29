@@ -16,6 +16,13 @@
     var socket = io.connect('http://localhost:3000');
     var domJustLoaded = true;
     var svgcanvas = d3.select("body").append("svg:svg").attr("width", 1000).attr("height", 1000).attr("x","100");
+
+    function renderTooltip(d){
+      var text = "Comment: " + d.comment ;
+      tooltip.text(text).
+      style("visibility", "visible");
+    }
+
     
     var tooltip = d3.select("body")
       .append("div")
@@ -69,7 +76,7 @@
         .attr("cy", function(d){ return (dataset.length-d.index) * 100 + 150;})
         .attr("cx", 300).style("fill", "steelblue")
         // Tooltip events
-        .on("click", function(d){ return tooltip.text(d.comment).style("visibility", "visible");})
+        .on("click", function(d){ renderTooltip(d); })
         .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
@@ -168,7 +175,7 @@
           .each("end", function() { 
           // Tooltip events
           d3.select(this)
-          .on("click", function(d){ return tooltip.text(d.comment).style("visibility", "visible");})
+          .on("click", function(d){ renderTooltip(d) })
           .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")})
           .on("mouseout", function(){return tooltip.style("visibility", "hidden");})});     
 
